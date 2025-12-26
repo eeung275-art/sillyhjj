@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2015년의 여름, 그 눅눅한 기억</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1d;
+            --text-color: #e0e0e0;
+            --accent-orange: #d4a373; /* Gyeom's warmth/Sunset */
+            --accent-blue: #4a6fa5;   /* Do-won's cool/Gloom */
+            --ice-cream-color: #5d4037; /* Red bean color */
+            --paper-color: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 480px;
+            background: linear-gradient(180deg, #2b2b2b 0%, #1f1f23 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Episode Header */
+        .header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: url('https://images.unsplash.com/photo-1566228000752-9255694a1d48?q=80&w=1000&auto=format&fit=crop') center/cover;
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2));
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .date {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Narrative Cards */
+        .content-area {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            transition: transform 0.3s ease, background 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: var(--accent-orange);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d1d1d1;
+            margin-bottom: 15px;
+        }
+
+        /* Interactive Element 1: Smudge */
+        .smudge-interaction {
+            width: 100%;
+            height: 60px;
+            background-color: var(--paper-color);
+            border-radius: 8px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .pencil-lead {
+            width: 2px;
+            height: 40px;
+            background-color: #333;
+            transform: rotate(15deg);
+            transition: all 0.2s;
+        }
+
+        .smudge-mark {
+            position: absolute;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            transition: all 0.5s ease-out;
+            opacity: 0;
+        }
+
+        .smudge-interaction.broken .pencil-lead {
+            height: 20px;
+            transform: rotate(45deg) translate(5px, 10px);
+        }
+
+        .smudge-interaction.broken .smudge-mark {
+            width: 150px;
+            height: 150px;
+            opacity: 1;
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 5px;
+            font-size: 0.7rem;
+            color: #666;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* Interactive Element 2: The Bag */
+        .bag-transfer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .character-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .char-dowon {
+            background-image: url('https://images.unsplash.com/photo-1485206412256-701ccc5b93ca?q=80&w=200&auto=format&fit=crop'); /* Gloomy/bw abstract */
+            border-color: var(--accent-blue);
+        }
+
+        .char-gyeom {
+            background-image: url('https://images.unsplash.com/photo-1542596594-649edbc13630?q=80&w=200&auto=format&fit=crop'); /* Warm/Happy abstract */
+            border-color: var(--accent-orange);
+            filter: grayscale(100%); /* Initially inactive */
+        }
+
+        .bag-icon {
+            font-size: 1.5rem;
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            cursor: pointer;
+        }
+
+        .bag-active .char-gyeom { filter: grayscale(0%); }
+        .bag-active .char-dowon { filter: grayscale(100%); opacity: 0.5; }
+        .bag-active .bag-icon { transform: translateX(120px); }
+
+
+        /* Interactive Element 3: Ice Cream Dialogue */
+        .ice-cream-scene {
+            background-image: url('https://images.unsplash.com/photo-1605218427306-633ba87c9759?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .ice-cream-scene::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            border-radius: 15px;
+        }
+
+        .dialogue-display {
+            position: relative;
+            z-index: 2;
+            padding: 15px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bubble {
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            max-width: 80%;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: popIn 0.3s forwards;
+            line-height: 1.4;
+        }
+
+        .bubble.gyeom {
+            background-color: rgba(243, 156, 18, 0.9);
+            color: #1a1a1d;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .bubble.dowon {
+            background-color: rgba(74, 111, 165, 0.9);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bubble.internal {
+            background-color: transparent;
+            border: 1px dashed rgba(255,255,255,0.4);
+            color: #ccc;
+            font-style: italic;
+            align-self: center;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        .ice-creams-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .bibbig {
+            width: 40px;
+            height: 100px;
+            background: linear-gradient(to right, #5d4037, #4e342e);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .bibbig::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 40px;
+            background: #d7ccc8;
+            border-radius: 0 0 5px 5px;
+            z-index: -1;
+        }
+
+        .bibbig:hover {
+            transform: translateY(-5px);
+        }
+
+        .bibbig:active {
+            transform: scale(0.95);
+        }
+
+        .bite-mark {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,0.1); /* Illusion of bite */
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            opacity: 0;
+        }
+
+        .bibbig.eaten .bite-mark {
+            opacity: 1;
+            background: transparent;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);
+        }
+
+        @keyframes popIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tap-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="date">2015.07.XX PM 07:10</div>
+                <h1 class="title">비비빅과 쇠맛</h1>
+            </div>
+        </header>
+
+        <div class="content-area">
+
+            <!-- Scene 1: Classroom -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📌 교실의 잔상</span>
+                </div>
+                <p class="card-text">
+                    녀석의 웃음소리가 고막을 긁었다. 눅눅한 장마철보다 더 불쾌한 놈.<br>
+                    내 책상을 톡 건드리는 그 손가락에 신경이 곤두섰다.
+                </p>
+                <div class="smudge-interaction" id="smudgeTrigger">
+                    <div class="pencil-lead"></div>
+                    <div class="smudge-mark"></div>
+                    <div class="instruction">터치해서 부러뜨리기</div>
+                </div>
+            </div>
+
+            <!-- Scene 2: The Walk -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🎒 억지스러운 동행</span>
+                </div>
+                <p class="card-text">
+                    "무거워 보이잖아. 들어준다고."<br>
+                    멋대로 꿰뚫어 보고, 멋대로 침범해온다.
+                </p>
+                <div class="bag-transfer" id="bagTrigger">
+                    <div class="character-icon char-dowon"></div>
+                    <div class="bag-icon">👜</div>
+                    <div class="character-icon char-gyeom"></div>
+                </div>
+                <p class="card-text" style="text-align: center; font-size: 0.8rem; margin-top: 10px; color: #777;">
+                    가방을 터치해 고겸에게 넘기세요.
+                </p>
+            </div>
+
+            <!-- Scene 3: The Ice Cream -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🍦 슈퍼 앞 평상</span>
+                </div>
+                <div class="ice-cream-scene">
+                    <div class="dialogue-display" id="dialogueBox">
+                        <!-- Dialogue generated by JS -->
+                    </div>
+
+                    <div style="flex-grow: 1;"></div> <!-- Spacer -->
+
+                    <div class="tap-hint">아이스크림을 눌러 대화하세요</div>
+
+                    <div class="ice-creams-container">
+                        <div class="bibbig" id="gyeomStick" onclick="playDialogue('gyeom')"></div>
+                        <div class="bibbig" id="dowonStick" onclick="playDialogue('dowon')"></div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="card-text" style="font-size: 0.9rem; text-align: center; color: #888;">
+                "너랑 있으면 좀 낫다.<br> 쪽팔린 게 좀 덜하다고."
+            </p>
+
+        </div>
+
+        <footer class="footer">
+            같은 시궁창에 발을 담근 우리.<br>
+            낡은 평상 위로 여름밤이 내려앉았다.
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Smudge Interaction
+            const smudge = document.getElementById('smudgeTrigger');
+            smudge.addEventListener('click', () => {
+                if(!smudge.classList.contains('broken')) {
+                    smudge.classList.add('broken');
+                    navigator.vibrate?.(50); // Mobile vibration
+                    const inst = smudge.querySelector('.instruction');
+                    inst.textContent = "검은 가루가 번졌다.";
+                    inst.style.color = "#333";
+                }
+            });
+
+            // 2. Bag Transfer Interaction
+            const bagTrigger = document.getElementById('bagTrigger');
+            const bagContainer = document.querySelector('.bag-transfer');
+
+            bagTrigger.addEventListener('click', () => {
+                if(!bagContainer.classList.contains('bag-active')) {
+                    bagContainer.classList.add('bag-active');
+                    navigator.vibrate?.(30);
+                }
+            });
+
+            // 3. Dialogue Sequence System
+            const dialogueBox = document.getElementById('dialogueBox');
+            const gyeomStick = document.getElementById('gyeomStick');
+            const dowonStick = document.getElementById('dowonStick');
+
+            // Dialogue Data
+            const script = [
+                { role: 'gyeom', text: "야, 이도원. 너네 집 요즘 괜찮냐?" },
+                { role: 'internal', text: "(그걸 네가 왜 물어. 자격도 없으면서.)" },
+                { role: 'dowon', text: "상관 꺼." },
+                { role: 'gyeom', text: "아버지가 어제 지랄해서. 너네 집까지 들렸을까 봐." },
+                { role: 'internal', text: "(알고 있었다. 네 팔에 감긴 붕대.)" },
+                { role: 'dowon', text: "...안 들렸어. 조용했어." },
+                { role: 'gyeom', text: "다행이네. 미안하다 시끄럽게 해서." },
+                { role: 'dowon', text: "너나 잘해. 멍청하게 맞고 다니지 말고." },
+                { role: 'gyeom', text: "오, 이도원. 걱정해주냐? ㅋㅋ" }
+            ];
+
+            let scriptIndex = 0;
+
+            window.playDialogue = function(clickedRole) {
+                if (scriptIndex >= script.length) {
+                    dialogueBox.innerHTML = '<div class="bubble internal">대화가 끊겼다. 여름밤의 열기만 남았다.</div>';
+                    return;
+                }
+
+                const line = script[scriptIndex];
+
+                // Visual Bite Effect
+                const stick = clickedRole === 'gyeom' ? gyeomStick : dowonStick;
+                stick.classList.add('eaten');
+                setTimeout(() => stick.classList.remove('eaten'), 200);
+
+                // Check if the correct person was clicked (optional constraint, keeping it loose for fluidity)
+                // Just play the next line regardless of who is clicked to keep story moving
+
+                const bubble = document.createElement('div');
+                bubble.className = `bubble ${line.role}`;
+                bubble.innerText = line.text;
+
+                // Clear old internal monologues to prevent clutter
+                if(line.role !== 'internal') {
+                    const oldInternal = dialogueBox.querySelectorAll('.internal');
+                    oldInternal.forEach(el => el.remove());
+                }
+
+                // Keep only last 3 bubbles
+                while(dialogueBox.children.length > 2) {
+                    dialogueBox.removeChild(dialogueBox.firstChild);
+                }
+
+                dialogueBox.appendChild(bubble);
+                scriptIndex++;
+                navigator.vibrate?.(20);
+
+                // Auto-play internal thought if next line is internal
+                if (scriptIndex < script.length && script[scriptIndex].role === 'internal') {
+                    setTimeout(() => window.playDialogue('any'), 800);
+                }
+            };
+        });
+    </script>
+</body>
+</html>
