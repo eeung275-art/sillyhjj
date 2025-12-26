@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아킬레우스 & 파트로클로스: 영혼의 기록</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;500;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --achilles-gold: #d4af37;
+            --patroclus-grey: #708090;
+            --bg-color: #f4f1ea;
+            --card-bg: #ffffff;
+            --text-main: #2c2c2c;
+            --text-sub: #5a5a5a;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-color);
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            padding: 24px 20px;
+            background: linear-gradient(135deg, #fff 0%, #fdfbf7 100%);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background-color: rgba(255,255,255,0.85);
+        }
+
+        h1 {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 1.4rem;
+            color: var(--text-main);
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--achilles-gold);
+            margin-top: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Timeline Feed */
+        .timeline {
+            padding: 20px;
+            flex: 1;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--achilles-gold), var(--patroclus-grey));
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        .memory-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 0;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 1;
+            margin-left: 30px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+        }
+
+        .memory-card:active {
+            transform: scale(0.98);
+        }
+
+        .date-marker {
+            position: absolute;
+            left: -36px;
+            top: 16px;
+            width: 12px;
+            height: 12px;
+            background: var(--bg-color);
+            border: 2px solid var(--achilles-gold);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .card-image-placeholder {
+            width: 100%;
+            height: 160px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px 16px;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 300;
+        }
+
+        .card-content {
+            padding: 16px;
+        }
+
+        .card-title {
+            font-family: 'Noto Serif KR', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .card-preview {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: flex-end; /* Mobile sheet style */
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            height: 85vh;
+            border-radius: 24px 24px 0 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-sub);
+            padding: 4px;
+        }
+
+        .modal-scroll {
+            overflow-y: auto;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .modal-img-desc {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 1px solid #eee;
+        }
+
+        .emoji-large {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .img-text {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .dialogue-box {
+            border-left: 3px solid var(--achilles-gold);
+            padding-left: 16px;
+            margin: 20px 0;
+        }
+
+        .dialogue-name {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--achilles-gold);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .dialogue-text {
+            font-family: 'Noto Serif KR', serif;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .narrative {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: #666;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Specific Colors for Characters */
+        .modal-content[data-theme="achilles"] .dialogue-box {
+            border-left-color: var(--achilles-gold);
+        }
+        .modal-content[data-theme="achilles"] .dialogue-name {
+            color: var(--achilles-gold);
+        }
+
+        .modal-content[data-theme="patroclus"] .dialogue-box {
+            border-left-color: var(--patroclus-grey);
+        }
+        .modal-content[data-theme="patroclus"] .dialogue-name {
+            color: var(--patroclus-grey);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Mnemosyne</h1>
+        <div class="subtitle">기억의 기록소</div>
+    </header>
+
+    <div class="timeline" id="timelineFeed">
+        <!-- Content injected via JS -->
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle" style="font-family: 'Noto Serif KR', serif; font-size: 1.2rem;">Title</h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-scroll" id="modalBody">
+            <!-- Details injected via JS -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data: Important Moments Log
+    const memories = [
+        {
+            id: 1,
+            date: "펠리온 산의 여름",
+            title: "리라와 무화과",
+            emoji: "🌿",
+            preview: "네가 리라를 켤 때면 세상이 멈추는 것 같았다. 햇살, 바람, 그리고 너.",
+            imgDesc: "햇살이 쏟아지는 숲속 바위 위, 아킬레우스가 리라를 연주하고 파트로클로스가 그 어깨에 기대어 쉬고 있는 평화로운 풍경.",
+            narrative: "전쟁의 소문도, 운명의 무게도 없었던 시절. 우리는 그저 소년이었고, 서로가 세상의 전부였다. 아킬레우스가 건네준 산딸기의 맛은 달콤했고, 맞잡은 손은 따뜻했다.",
+            quote: "매일 들려줄게. 네가 질려서 그만하라고 할 때까지.",
+            speaker: "아킬레우스",
+            theme: "achilles",
+            tags: ["#펠리온", "#첫사랑", "#평화"]
+        },
+        {
+            id: 2,
+            date: "동굴의 밤",
+            title: "첫 번째 결합",
+            emoji: "🔥",
+            preview: "아프고, 뜨겁고, 충만했다. 너로 가득 찼던 그 순간, 우리는 하나가 되었다.",
+            imgDesc: "타오르는 모닥불 앞, 곰 가죽 위에서 서로를 끌어안고 있는 두 소년. 땀방울이 불빛에 반사되어 보석처럼 빛난다.",
+            narrative: "단순한 호기심이 아니었다. 그것은 영혼의 갈구였다. 아킬레우스는 나를 부수고 들어와 내 안에 자신의 흔적을 새겼고, 나는 기꺼이 그를 받아들였다. 고통조차 쾌락이 되는 기적.",
+            quote: "네 안에, 내가 가득 찼다고.",
+            speaker: "아킬레우스",
+            theme: "achilles",
+            tags: ["#첫날밤", "#소유욕", "#각인"]
+        },
+        {
+            id: 3,
+            date: "이별과 추적",
+            title: "사라진 태양",
+            emoji: "🌊",
+            preview: "눈을 떴을 때 너는 없었다. 하지만 나는 포기하지 않았다. 지옥 끝까지라도 널 찾아갈 테니까.",
+            imgDesc: "거친 파도가 치는 에게해 위, 낡은 상선 갑판에 서서 수평선을 노려보는 파트로클로스의 뒷모습. 손에 쥔 지도가 바람에 펄럭인다.",
+            narrative: "테티스가 우리를 갈라놓았지만, 운명의 끈은 끊어지지 않았다. 스키로스로 향하는 2주간의 항해. 두려움은 없었다. 네가 없는 세상에서 사는 것이 더 큰 공포였으므로.",
+            quote: "기다려, 아킬레우스. 신들이 우리를 갈라놓으려 해도, 나는 반드시 너를 찾아낼 테니.",
+            speaker: "파트로클로스",
+            theme: "patroclus",
+            tags: ["#이별", "#추적", "#맹세"]
+        },
+        {
+            id: 4,
+            date: "스키로스 왕궁",
+            title: "알현실의 선언",
+            emoji: "👑",
+            preview: "붉은 키톤을 입은 영웅. 그리고 그가 왕 앞에서 토해낸 진실.",
+            imgDesc: "화려한 알현실 한복판, 여장을 한 아킬레우스가 시종 차림의 파트로클로스를 부서져라 끌어안고 왕을 노려보는 긴박한 순간.",
+            narrative: "모두가 비웃을지라도 상관없었다. 여장을 한 치욕도, 숨어 지낸 시간도, 너를 다시 만난 순간 전부 사라졌다. 아킬레우스는 왕 앞에서, 그리고 신 앞에서 당당히 선언했다.",
+            quote: "제 남편입니다. 이 사람 없이는 살 수 없어 제가 불렀습니다.",
+            speaker: "아킬레우스",
+            theme: "achilles",
+            tags: ["#재회", "#커밍아웃", "#충격"]
+        },
+        {
+            id: 5,
+            date: "오늘 밤",
+            title: "속죄와 정화",
+            emoji: "🌙",
+            preview: "다른 이의 흔적을 지우고, 오직 너로만 다시 채우는 밤. 사랑해, 파트로클로스.",
+            imgDesc: "달빛이 비치는 침대 위, 서로의 몸을 씻겨주고 입 맞추며 깊게 엉켜있는 두 사람의 그림자.",
+            narrative: "배신의 상처는 깊었으나 사랑은 그보다 더 깊었다. 파트로클로스는 용서했고, 아킬레우스는 맹세했다. 서로의 몸을 탐하고 핥으며, 그들은 과거의 오점을 지우고 다시 태어났다.",
+            quote: "내 몸 구석구석... 네 흔적을 남겨줘. 다른 건 아무것도 기억나지 않게.",
+            speaker: "아킬레우스",
+            theme: "achilles",
+            tags: ["#화해", "#치유", "#영원"]
+        }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const timelineFeed = document.getElementById('timelineFeed');
+
+        // Render Cards
+        memories.forEach(memory => {
+            const card = document.createElement('div');
+            card.className = 'memory-card';
+            card.onclick = () => openModal(memory.id);
+
+            // Generate HTML for card
+            card.innerHTML = `
+                <div class="date-marker"></div>
+                <div class="card-image-placeholder" style="background-color: ${memory.theme === 'achilles' ? '#fff8e1' : '#eceff1'}">
+                    ${memory.emoji}
+                    <div class="card-image-overlay">${memory.date}</div>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">${memory.title}</h3>
+                    <p class="card-preview">${memory.preview}</p>
+                    <div style="margin-top:10px;">
+                        ${memory.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            timelineFeed.appendChild(card);
+        });
+    });
+
+    // Modal Functions
+    function openModal(id) {
+        const memory = memories.find(m => m.id === id);
+        if (!memory) return;
+
+        const modal = document.getElementById('detailModal');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        title.innerText = memory.date;
+
+        // Set Modal Content
+        body.innerHTML = `
+            <div class="modal-img-desc">
+                <span class="emoji-large">${memory.emoji}</span>
+                <p class="img-text">[비주얼 로그]<br>${memory.imgDesc}</p>
+            </div>
+
+            <h2 style="font-family: 'Noto Serif KR', serif; margin-bottom: 16px; color: var(--text-main);">${memory.title}</h2>
+
+            <p class="narrative">${memory.narrative}</p>
+
+            <div class="dialogue-box">
+                <div class="dialogue-name">${memory.speaker}</div>
+                <div class="dialogue-text">"${memory.quote}"</div>
+            </div>
+
+            <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+                ${memory.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+        `;
+
+        // Apply theme color
+        const content = document.querySelector('.modal-content');
+        content.setAttribute('data-theme', memory.theme);
+
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling bg
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('detailModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+        if (e.target.id === 'detailModal') {
+            closeModal();
+        }
+    });
+</script>
+
+</body>
+</html>
