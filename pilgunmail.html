@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&family=Gowun+Batang:wght@400;700&display=swap');
+
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+        font-family: 'Nanum Myeongjo', serif;
+        margin: 0;
+        padding: 40px;
+        line-height: 1.8;
+    }
+
+    .scene-description {
+        color: #888;
+        font-style: italic;
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 0.9em;
+    }
+
+    /* 편지 컨테이너 (종이 질감 및 효과) */
+    .letter-paper {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto 60px auto;
+        padding: 60px 40px;
+        background-color: #f4f0e6;
+        background-image:
+            linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px),
+            linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);
+        background-size: 20px 20px;
+        box-shadow:
+            5px 5px 15px rgba(0,0,0,0.5),
+            inset 0 0 40px rgba(139, 69, 19, 0.1);
+        border-radius: 2px;
+        transform: rotate(0deg);
+        transition: transform 0.3s ease;
+    }
+
+    /* 종이 구겨짐 효과 */
+    .wrinkled {
+        background:
+            linear-gradient(135deg, transparent 40%, rgba(0,0,0,0.05) 45%, transparent 50%),
+            #f4f0e6;
+    }
+
+    /* 눈물 자국 */
+    .tear-stain {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* 필건의 글씨체 (거칠고 투박함, 악필) */
+    .pilgun-font {
+        font-family: 'Nanum Pen Script', cursive;
+        color: #2b2b2b;
+        font-size: 1.4em;
+        font-weight: 400;
+        letter-spacing: -0.5px;
+        transform: rotate(-0.5deg);
+    }
+
+    /* 필건의 감정 동요 (글씨 흔들림) */
+    .shaky {
+        display: inline-block;
+        transform: skewX(-10deg) translateY(1px);
+        font-weight: bold;
+    }
+
+    /* 시영의 글씨체 (얇고 예민함, 단정하지만 힘이 없음) */
+    .siyoung-font {
+        font-family: 'Gowun Batang', serif;
+        color: #3d4c53; /* 짙은 먹색 */
+        font-size: 1.1em;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 2.2;
+    }
+
+    /* 지우개로 지우고 덧쓴 효과 (CSS Grid 사용) */
+    .rewrite-container {
+        display: inline-grid;
+        vertical-align: baseline;
+        margin: 0 2px;
+    }
+
+    .erased-text {
+        grid-area: 1 / 1;
+        color: rgba(0, 0, 0, 0.15); /* 아주 흐릿하게 남은 자국 */
+        text-decoration: none; /* 취소선 금지 */
+        filter: blur(0.8px);
+        transform: rotate(-2deg) scale(0.95);
+        pointer-events: none;
+        user-select: none;
+        z-index: 1;
+        font-family: 'Nanum Pen Script', cursive; /* 필건의 지운 흔적 */
+    }
+
+    .new-text {
+        grid-area: 1 / 1;
+        color: inherit;
+        z-index: 2;
+        background-color: rgba(244, 240, 230, 0.4); /* 살짝 배경색을 줘서 겹침 효과 */
+    }
+
+    .date-stamp {
+        text-align: right;
+        font-size: 0.8em;
+        color: #8b7d6b;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #d3c9b8;
+        padding-bottom: 5px;
+    }
+
+    .ps-section {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #555;
+        border-top: 1px dashed #aaa;
+        padding-top: 10px;
+    }
+
+    /* 뒤집힌 편지 (비밀 편지) */
+    .back-side {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #e8e4da;
+        border: 1px solid #d3c9b8;
+        font-size: 0.9em;
+        color: #666;
+        display: none; /* 호버 시 보여주거나 따로 연출 */
+    }
+
+    hr.divider {
+        border: 0;
+        height: 1px;
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0));
+        margin: 60px 0;
+    }
+
+    .context-text {
+        text-align: center;
+        color: #aaa;
+        margin-bottom: 20px;
+        font-family: 'Nanum Myeongjo', serif;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="scene-description">
+    [ 1864년 겨울, 남쪽 바다. 투신 후 기적적으로, 혹은 저주스럽게도 필건만이 어부의 그물에 걸려 목숨을 건졌다.<br>
+    도련님의 시신은 찾지 못했다. 홀로 남겨진 필건은 폐가에 누워, 꿈인지 현실인지 모를 7일간의 편지를 쓴다. ]
+</div>
+
+<!-- 1일차: 필건의 편지 -->
+<div class="context-text">첫 번째 밤, 성긴 붓을 들어 떨리는 손으로 적어내리다.</div>
+<div class="letter-paper wrinkled">
+    <div class="date-stamp">동짓달 스무날 밤</div>
+    <div class="pilgun-font">
+        도련님께 올립니다.<br><br>
+
+        눈을 떴을 때, 세상은 여전히 시끄러웠습니다. 파도 소리가 고막을 찢을 듯 울리고, 비린내가 코를 찔렀습니다. 차라리 저승의 입구이길 바랐으나, 살이 에이는 추위가 이곳이 아직 지옥 같은 이승임을 알려주었습니다.<br><br>
+
+        어찌하여 저만 뱉어내셨습니까. <br>
+        어찌하여 이 천한 놈의 숨만 붙여두고 홀로 깊은 곳으로 가셨습니까.<br><br>
+
+        그물을 걷던 늙은 어부가 저를 건져냈다고 합니다. 퉁퉁 불어터진 제 몸뚱어리를 보며 혀를 차더군요. 저는 그 자리에서 혀를 깨물고 싶었으나, 도련님을 찾기 전에는 죽을 수도 없었습니다. 하루 종일 갯바위를 뒤졌습니다. 찢어진 도련님의 옷자락 조각 하나 찾지 못했습니다.<br><br>
+
+        <div class="rewrite-container">
+            <span class="erased-text">제발 살아만 계셔 주십시오</span>
+            <span class="new-text">부디 춥지 않은 곳에 닿으셨기를 바랍니다.</span>
+        </div><br><br>
+
+        약조를 지키지 못한 저를 용서치 마십시오. 하루 뒤에 따르겠다 맹세하였는데, 해가 지고 다시 떠오를 때까지 저는 이 구차한 숨을 쉬고 있습니다. <span class="shaky">무섭습니다.</span> 도련님이 없는 세상에서 숨을 들이마시는 것조차 죄스러워, 가슴을 쥐어뜯어도 통증이 없습니다.<br><br>
+
+        잠이 오지 않으나, 혹여 꿈에서라도 도련님을 뵐까 하여 눈을 감아보려 합니다. 제발, 저를 데리러 와 주십시오.<br><br>
+
+        죄인 필건 올림.
+    </div>
+</div>
+
+<!-- 1일차 답장: 시영의 편지 -->
+<div class="context-text">이튿날 아침, 머리맡에 놓인 물기 어린 종이.</div>
+<div class="letter-paper" style="background-color: #fdfbf7;">
+    <div class="date-stamp">동짓달 스무하루 아침</div>
+    <div class="siyoung-font">
+        필건아.<br><br>
+
+        글씨가 그게 뭐냐. 지렁이가 기어가도 그것보단 낫겠다. 여전하구나, 너는. 그 투박한 손으로 붓을 잡고 끙끙거렸을 꼴이 눈에 선하다.<br><br>
+
+        나는 춥지 않다. 네가 마지막까지 그 흉측한 몸으로 나를 꽉 안아준 덕분에, 바다 밑바닥까지 내려오는 동안에도 온기가 식지 않았다. 물속은 생각보다 고요하더구나. 기침도 나오지 않고, 피도 토하지 않는다. 숨이 차지 않으니 살 것 같다.<br><br>
+
+        그런데 눈을 떠보니 네가 없더구나. <br>
+        화가 났다. 감히 주인을 혼자 보내? 네놈이 기어이 나를 버리는구나 싶어 괘씸했다.<br><br>
+
+        허나, 네 편지를 보니 마음이 조금 풀렸다. <br>
+        오지 마라. 아직은 아니다.<br>
+        네가 살아서 겪어야 할 고통이 내게는 유희가 될 테니, 그곳에서 조금 더 떨다가 오거라. <br>
+        하루 뒤라 하였느냐? 이곳의 시간은 그곳과 다르니, 내가 부를 때까지 얌전히 기다려라.<br><br>
+
+        추신. 내 옷자락 찾으러 다니지 마라. 꼴사납다.
+    </div>
+</div>
+
+<hr class="divider">
+
+<!-- 3일차: 필건의 편지 -->
+<div class="context-text">셋째 날 밤, 열병에 들떠 흐려진 시야로 적다.</div>
+<div class="letter-paper wrinkled">
+    <div class="tear-stain" style="top: 150px; right: 80px;"></div>
+    <div class="date-stamp">동짓달 스무이틀 밤</div>
+    <div class="pilgun-font">
+        도련님.<br><br>
+
+        꿈인지 생시인지 분간이 가지 않습니다. 아침에 눈을 뜨니 도련님의 필체가 적힌 종이가 있어, 저는 미친놈처럼 울다가 웃다가 하였습니다. 이것이 제가 만들어낸 허상이라도 좋습니다. 도련님이 저를 보고 계신다면 그것으로 족합니다.<br><br>
+
+        몸이 불덩이 같습니다. 어부가 가져다준 약탕을 <div class="rewrite-container"><span class="erased-text">쏟아버렸습니다</span><span class="new-text">마시는 시늉만 하였습니다</span></div>. 도련님께서 그토록 쓰다 하시던 것을, 제가 어찌 삼키겠습니까. 이 열이 도련님이 앓던 그 열이라면, 저는 평생이라도 앓겠습니다.<br><br>
+
+        도련님, 기억나십니까. 5살 적 제가 훔친 떡을 목구멍에 쑤셔 넣다가 매를 맞을 때, 도련님이 저를 거두셨지요. '더러운 것'이라 하시면서도 제 손을 잡아주셨던 그 하얀 손가락이 사무치게 그립습니다.<br><br>
+
+        이곳의 사람들은 저를 괴물 보듯 합니다. 덩치만 산만한 놈이 혼자 살아남아 질질 짠다고 수군거립니다. 맞습니다. 저는 주인을 잃은 개만도 못합니다. <br>
+        <span class="shaky">보고 싶습니다.</span><br>
+        도련님의 마른 등, 뼈만 남은 손목, 저를 경멸하듯 보시던 그 눈매까지도....<br><br>
+
+        명령을 거두어 주십시오. 오지 말라 하지 마십시오. 저는 도련님 없이는 숨 쉬는 법을 모릅니다.
+    </div>
+</div>
+
+<!-- 3일차 답장: 시영의 편지 -->
+<div class="context-text">넷째 날 아침, 차가운 바닷바람 냄새가 배어있는 편지.</div>
+<div class="letter-paper" style="background-color: #f9f9f9;">
+    <div class="date-stamp">동짓달 스무사흘 아침</div>
+    <div class="siyoung-font">
+        징그러운 놈.<br><br>
+
+        죽어서도 충성스러운 척은 혼자 다 하는구나. 네가 약을 먹지 않고 버틴다고 내가 기특해할 줄 알았느냐? 미련한 짓이다. 네놈 몸뚱어리가 튼튼한 것이야 내 진작 알고 있었지만, 스스로 몸을 축내는 꼴은 보기 싫구나.<br><br>
+
+        네가 5살 때... 그래, 기억난다. 흙투성이 얼굴로 나를 올려다보던 그 눈빛이 꼭 굶주린 늑대 새끼 같았지. 내가 너를 거둔 것은 네가 불쌍해서가 아니라, 내 화풀이 대상이 필요해서였다. 그걸 알면서도 너는 내 발을 핥았지.<br><br>
+
+        필건아.<br>
+        여기 바다는 네가 말한 대로 하늘이 두 개인 것 같더구나. 물고기들이 별처럼 떠다닌다. <br>
+        네가 업고 보여주었던 그 절벽 위에서의 풍경보다, 지금 내가 있는 이곳이 더 아늑하다.<br><br>
+
+        허나... <br>
+        내 발이 시리구나. 네 놈의 그 뜨끈한 손이 없으니, 아무리 좋은 비단 이불을 덮어도 발끝이 차다. <br>
+        그러니 약을 먹어라. 기운을 차려야 나를 데우러 올 것 아니냐. 비실비실한 귀신은 쓸모없다.
+    </div>
+</div>
+
+<hr class="divider">
+
+<!-- 5일차: 필건의 편지 -->
+<div class="context-text">다섯째 날 밤, 결심이 선 듯 꾹꾹 눌러쓴 글씨.</div>
+<div class="letter-paper wrinkled">
+    <div class="date-stamp">동짓달 스무닷새 밤</div>
+    <div class="pilgun-font">
+        도련님.<br><br>
+
+        발이 시리시다니, 당장 달려가 주물러 드려야 하는데... 이 불충한 놈이 너무 늦장을 부렸습니다. 도련님의 편지를 받고, 억지로 미음을 삼켰습니다. 토할 것 같았으나 도련님이 명하시니 짐승처럼 씹어 삼켰습니다.<br><br>
+
+        오늘 밤은 유독 파도가 높습니다. 창호지가 찢어질 듯 웁니다. 꼭 도련님이 기침하시던 소리 같습니다. <br>
+        제가 덮어드렸던 털가죽 배자는 잘 여미고 계십니까. 물살에 풀어지지는 않았습니까.<br><br>
+
+        <div class="rewrite-container">
+            <span class="erased-text">사실은 무섭습니다 죽는 것이 아니라 도련님을 영영 못 만날까 봐</span>
+            <span class="new-text">이제 준비가 된 것 같습니다.</span>
+        </div><br><br>
+
+        도련님이 계신 그곳이 아늑하다 하시니 다행입니다. 허나 도련님은 혼자 계시면 외로움을 타시지 않습니까. 제가 곁에서 말동무가 되어드리고, 머리도 빗겨드려야지요. 제 투박한 손길이 없으면 누가 도련님의 그 고운 머리카락을 만지겠습니까.<br><br>
+
+        내일, 해가 지면 길을 나서겠습니다. <br>
+        어부가 잠든 틈을 타 다시 그 절벽으로 가겠습니다.<br>
+        이번에는 실수 없이, 그물 따위에 걸리지 않고 곧장 도련님의 품으로 떨어지겠습니다.<br><br>
+
+        기다려 주십시오.
+    </div>
+</div>
+
+<!-- 5일차 답장: 시영의 편지 -->
+<div class="context-text">여섯째 날 아침, 잉크가 번져 있는 답장.</div>
+<div class="letter-paper" style="background-color: #fdfbf7;">
+    <div class="tear-stain" style="top: 80px; left: 50%;"></div>
+    <div class="date-stamp">동짓달 스무엿새 아침</div>
+    <div class="siyoung-font">
+        그래.<br><br>
+
+        올 테면 오거라. 말린다고 들을 놈도 아니고.<br>
+        사실 나도... 심심해서 견딜 수가 없다. 네가 없으니 괴롭힐 사람도 없고, 내 투정을 받아줄 샌드백도 없으니 사는 게(아니, 죽은 게) 무료하구나.<br><br>
+
+        필건아.<br>
+        오려거든 깨끗이 씻고 오너라. 피비린내 나는 건 질색이다. <br>
+        그리고 올 때... 갱엿이라도 하나 물고 오거라. 입이 쓰다.<br><br>
+
+        무서워하지 마라. <br>
+        네가 떨어지는 그 순간, 내가 밑에서 두 팔 벌려 받아주마. <br>
+        네가 나를 업고 왔으니, 이번에는 내가 너를 안아주마.<br><br>
+
+        어서 와라. 보고 싶다.
+    </div>
+</div>
+
+<hr class="divider">
+
+<!-- 7일차: 필건의 마지막 편지 -->
+<div class="context-text">일곱째 날 밤, 남겨진 것은 편지 한 장뿐이었다.</div>
+<div class="letter-paper wrinkled" style="border: 1px solid #000;">
+    <div class="date-stamp">동짓달 스무이레 밤</div>
+    <div class="pilgun-font">
+        <strong>나의 주인, 나의 도련님, 정시영 님께.</strong><br><br>
+
+        마지막 인사를 올립니다.<br>
+        몸을 정갈히 씻었습니다. 도련님이 좋아하시던 갱엿은 구하지 못했으나, 제 품속에 도련님과 나누었던 입맞춤의 기억을 담았습니다. 그것으로 쓴맛을 달래 주십시오.<br><br>
+
+        이 편지를 남기고 저는 떠납니다. <br>
+        이 지옥 같은 이승에서의 7일은 도련님을 다시 만나기 위한 긴 꿈이었습니다. <br>
+        이제 꿈에서 깨어, 영원한 밤으로 들어갑니다.<br><br>
+
+        도련님.<br>
+        제 흉터 하나하나가 도련님의 것이라 했습니다.<br>
+        이제 이 영혼마저 도련님의 것입니다.<br>
+        바다 깊은 곳, 가장 어둡고 고요한 곳에서 다시 뵙겠습니다.<br><br>
+
+        <span class="shaky" style="font-size: 1.6em;">사랑합니다.</span><br>
+        감히 종놈이 입에 담을 수 없는 말이나, 죽으러 가는 길에 무엇이 두렵겠습니까.<br><br>
+
+        곧 뵙겠습니다.<br><br>
+
+        당신의 개, 필건 올림.
+    </div>
+
+    <div class="ps-section pilgun-font" style="font-size: 0.8em; color: #777;">
+        추신. 물이 차갑더라도 놀라지 마십시오. 제 온기를 다 드리겠습니다.
+    </div>
+</div>
+
+</body>
+</html>
