@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구마 사제: 비망록</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-color: #0a0a0a;
+            --text-color: #e0e0e0;
+            --accent-color: #8b0000; /* Blood Red */
+            --secondary-bg: #1a1a1a;
+            --dim-text: #888;
+            --font-serif: 'Nanum Myeongjo', serif;
+            --font-sans: 'Noto Sans KR', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Container imitating a tablet/secure device */
+        .device-container {
+            width: 100%;
+            max-width: 800px;
+            min-height: 90vh;
+            background-color: var(--secondary-bg);
+            border: 1px solid #333;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, #111, #1a1a1a);
+        }
+
+        .header-title {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .status-light {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        /* Layout */
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+            height: 100%;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            width: 80px;
+            background-color: #111;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        .nav-item {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            color: var(--dim-text);
+            position: relative;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            position: relative;
+            background-image: radial-gradient(circle at center, #222 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Dynamic Sections */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: #ccc;
+            font-size: 0.95rem;
+            word-break: keep-all;
+        }
+
+        .quote {
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--accent-color);
+            border-left: 3px solid var(--accent-color);
+            padding-left: 15px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+        }
+
+        .data-entry {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid #444;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .label {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Interactive Elements */
+        .interactive-btn {
+            background: transparent;
+            border: 1px solid var(--dim-text);
+            color: var(--dim-text);
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            font-family: var(--font-sans);
+        }
+
+        .interactive-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .hidden-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            border-left: 2px solid #444;
+            padding-left: 0;
+            margin-top: 0;
+        }
+
+        .hidden-content.revealed {
+            max-height: 500px;
+            padding-left: 15px;
+            margin-top: 15px;
+        }
+
+        /* Audio Player Simulation */
+        .audio-player {
+            display: flex;
+            align-items: center;
+            background: #222;
+            padding: 15px;
+            border-radius: 50px;
+            margin-top: 20px;
+        }
+
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .waveform {
+            flex: 1;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .bar {
+            width: 3px;
+            background-color: #555;
+            height: 10px;
+            animation: none;
+        }
+
+        .playing .bar {
+            animation: wave 1s infinite ease-in-out;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 25px; }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .device-container { border: none; min-height: 100vh; }
+            nav { width: 60px; }
+            h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="device-container">
+    <header>
+        <div class="header-title">ARCHIVE: MATTEO</div>
+        <div class="status-light" title="Encrypted Connection"></div>
+    </header>
+
+    <div class="content-wrapper">
+        <nav>
+            <div class="nav-item active" data-target="dashboard" title="대시보드">†</div>
+            <div class="nav-item" data-target="profile" title="인물 파일">👤</div>
+            <div class="nav-item" data-target="log" title="사건 일지">📝</div>
+            <div class="nav-item" data-target="audio" title="음성 기록">🎙️</div>
+        </nav>
+
+        <main>
+            <!-- SECTION 1: DASHBOARD -->
+            <div id="dashboard" class="section active">
+                <h2>묵상 (Meditatio)</h2>
+                <div class="quote">
+                    "악마는 사람의 어두운 마음을 파고든다.<br>
+                    그 틈새는 아주 작고 사소한 곳에서 시작된다."
+                </div>
+                <p>
+                    비가 그치지 않는다. 습기가 차오를 때마다 구마 의식을 치른 자리의 역한 냄새가 코끝을 맴돈다.
+                    오늘 밤, 나는 또다시 그 무모한 자와 동행했다.
+                    그는 자신이 미끼가 되는 것을 두려워하지 않는다. 그것이 구원이라 믿는 걸까, 아니면 파멸을 바라는 걸까.
+                </p>
+                <div class="data-entry">
+                    <span class="label">Current Status</span>
+                    <p style="margin:0;">박일도 추적 중. 윤화평 부상 확인. 영적 교란 상태 지속.</p>
+                </div>
+            </div>
+
+            <!-- SECTION 2: PROFILE (NARRATIVE CONTINUATION) -->
+            <div id="profile" class="section">
+                <h2>관찰 대상: 윤화평</h2>
+                <div class="data-entry">
+                    <span class="label">Note</span>
+                    <p>
+                        붕대 감는 법을 모르는 사람처럼 굴었다.
+                        피가 시트를 적시는데도 그는 창밖 빗줄기만 멍하니 쳐다보았다.
+                        내가 홧김에 그의 팔을 낚아채 치료를 시작했을 때, 그는 아주 잠깐 내 쪽으로 고개를 돌렸다.
+                    </p>
+                    <button class="interactive-btn" onclick="toggleContent('detail1')">대화 기록 열람</button>
+                    <div id="detail1" class="hidden-content">
+                        <p>
+                            "이런 식으로 살면 얼마나 버틸 것 같습니까."<br>
+                            나의 힐난에 그는 픽 웃었다. 힘 빠진 입꼬리가 비틀렸다.<br>
+                            <br>
+                            "신부님은 참... 걱정도 팔자다."<br>
+                            "걱정이 아닙니다. 당신이 쓰러지면 박일도를 놓치니까."<br>
+                            <br>
+                            그는 대꾸하지 않았다. 대신 붕대가 감긴 팔을 들어 빗물이 맺힌 차창을 쓱 문질렀다.
+                            유리에 번진 물기가 그의 얼굴을 일그러뜨렸다.
+                            그 순간 차 안의 공기가 무겁게 내려앉았다.
+                            우리는 서로를 혐오하면서도, 서로가 없으면 안 된다는 끔찍한 사실을 알고 있다.
+                        </p>
+                    </div>
+                </div>
+                <div class="data-entry">
+                    <span class="label">Assessment</span>
+                    <p>
+                        감정 과잉. 논리 결여. 하지만...<br>
+                        그의 '감응' 능력은 필수 불가결한 변수다. 오늘 밤 그의 눈빛은 평소와 달랐다.
+                        공포보다는 체념에 가까운, 깊은 우물 같은 눈.
+                    </p>
+                </div>
+            </div>
+
+            <!-- SECTION 3: LOG -->
+            <div id="log" class="section">
+                <h2>사건 일지: 빗길 정차</h2>
+                <p>
+                    갓길에 차를 세웠던 20분 남짓한 시간.
+                    엔진의 진동이 발바닥을 통해 전해졌다.
+                    치료가 끝난 뒤에도 나는 곧바로 차를 출발시키지 못했다.
+                </p>
+                <p>
+                    윤화평의 손목에서 느껴지던 맥박이 불규칙했다.
+                    단순한 통증 때문인지, 아니면 또 다른 '그것'의 기척 때문인지 구분이 가지 않았다.
+                    나는 무심코 성경책을 쥔 손에 힘을 주었다.
+                </p>
+                <div class="quote">
+                    "그것은 동쪽에서 온다.<br>
+                    그리고 누군가의 희생을 먹고 자란다."
+                </div>
+                <p>
+                    그를 집에 내려주고 돌아오는 길, 핸들에 묻은 미세한 핏자국을 발견했다.
+                    물티슈로 닦아냈지만 붉은 얼룩은 쉽게 지워지지 않았다.
+                    마치 그와 엮인 내 운명처럼.
+                </p>
+            </div>
+
+            <!-- SECTION 4: AUDIO -->
+            <div id="audio" class="section">
+                <h2>음성 기록</h2>
+                <div class="data-entry">
+                    <span class="label">Date: 202X.XX.XX / 03:15 AM</span>
+                    <p>귀가 직후 녹음.</p>
+
+                    <div class="audio-player" onclick="toggleAudio(this)">
+                        <div class="play-btn">▶</div>
+                        <div class="waveform">
+                            <div class="bar" style="animation-delay: 0s"></div>
+                            <div class="bar" style="animation-delay: 0.2s"></div>
+                            <div class="bar" style="animation-delay: 0.4s"></div>
+                            <div class="bar" style="animation-delay: 0.1s"></div>
+                            <div class="bar" style="animation-delay: 0.5s"></div>
+                            <div class="bar" style="animation-delay: 0.3s"></div>
+                            <div class="bar" style="animation-delay: 0s"></div>
+                            <div class="bar" style="animation-delay: 0.2s"></div>
+                            <div class="bar" style="animation-delay: 0.4s"></div>
+                            <div class="bar" style="animation-delay: 0.1s"></div>
+                        </div>
+                    </div>
+                    <div id="transcript" class="hidden-content">
+                        <p style="font-family: 'Nanum Myeongjo'; color: #aaa; margin-top: 10px;">
+                            (한숨 소리)<br>
+                            ...주님, 저 자를 불쌍히 여기소서.<br>
+                            그의 고통이 어디서 오는지 저는 알지 못합니다.<br>
+                            다만 그가 스스로를 태워버리기 전에, 우리가 그놈을 잡을 수 있게 하소서.<br>
+                            (빗소리만 길게 이어짐)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Navigation Logic
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove active class from all items and sections
+                navItems.forEach(nav => nav.classList.remove('active'));
+                sections.forEach(sec => sec.classList.remove('active'));
+
+                // Add active class to clicked item and corresponding section
+                item.classList.add('active');
+                const targetId = item.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Content Toggle Logic (Exposed to global scope for inline onclick)
+        window.toggleContent = function(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('revealed')) {
+                el.classList.remove('revealed');
+            } else {
+                el.classList.add('revealed');
+            }
+        };
+
+        // Audio Player Simulation Logic
+        window.toggleAudio = function(el) {
+            const transcript = document.getElementById('transcript');
+            const playBtn = el.querySelector('.play-btn');
+
+            if (el.classList.contains('playing')) {
+                el.classList.remove('playing');
+                playBtn.textContent = '▶';
+                transcript.classList.remove('revealed');
+            } else {
+                el.classList.add('playing');
+                playBtn.textContent = '❚❚';
+                // Reveal transcript after a short delay
+                setTimeout(() => {
+                    transcript.classList.add('revealed');
+                }, 500);
+            }
+        };
+    });
+</script>
+
+</body>
+</html>
