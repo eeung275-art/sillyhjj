@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관음묘의 폐허 아래</title>
+    <style>
+        :root {
+            --bg-color: #08090b;
+            --container-bg: rgba(20, 24, 30, 0.85);
+            --text-main: #e0e6ed;
+            --text-sub: #8b9bb4;
+            --accent-lan: #b0c4de;
+            --accent-jin: #d4af37; /* Gold for Jin */
+            --danger: #8b0000;
+            --rain-color: rgba(176, 196, 222, 0.15);
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Noto Serif KR', serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Rain Animation Background */
+        .rain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 1px;
+            height: 15px;
+            background: linear-gradient(to bottom, transparent, var(--rain-color));
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        /* Main Interface */
+        .main-stage {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            z-index: 10;
+        }
+
+        .scene-header {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Visual Elements */
+        .visual-frame {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #000;
+            margin-bottom: 1rem;
+        }
+
+        .visual-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.7;
+            transition: transform 10s ease;
+        }
+
+        .visual-frame:hover img {
+            transform: scale(1.1);
+        }
+
+        .overlay-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, transparent 40%, #000 100%);
+        }
+
+        /* Dialogue & Narrative */
+        .narrative-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .dialogue-block {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid var(--accent-jin);
+            border-radius: 0 4px 4px 0;
+            animation: fadeIn 1s ease forwards;
+            opacity: 0;
+        }
+
+        .dialogue-name {
+            font-size: 0.8rem;
+            color: var(--accent-jin);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dialogue-content {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            font-style: italic;
+        }
+
+        .dialogue-block.lan {
+            border-left-color: var(--accent-lan);
+            align-items: flex-end;
+            text-align: right;
+            border-radius: 4px 0 0 4px;
+            border-left: none;
+            border-right: 3px solid var(--accent-lan);
+        }
+
+        .dialogue-block.lan .dialogue-name {
+            color: var(--accent-lan);
+            flex-direction: row-reverse;
+        }
+
+        /* Interaction Section */
+        .interaction-zone {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+
+        .pulse-monitor {
+            height: 30px;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .pulse-line {
+            width: 3px;
+            background: var(--danger);
+            animation: pulseHeight 1.5s infinite ease-in-out;
+            border-radius: 2px;
+        }
+
+        .pulse-line:nth-child(2) { animation-delay: 0.1s; height: 60%; }
+        .pulse-line:nth-child(3) { animation-delay: 0.2s; height: 100%; }
+        .pulse-line:nth-child(4) { animation-delay: 0.3s; height: 50%; }
+        .pulse-line:nth-child(5) { animation-delay: 0.4s; height: 30%; }
+
+        @keyframes pulseHeight {
+            0%, 100% { height: 2px; opacity: 0.5; }
+            50% { height: 100%; opacity: 1; filter: drop-shadow(0 0 5px red); }
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--accent-lan);
+            color: var(--accent-lan);
+            padding: 1rem 2rem;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 2s 1s forwards;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(176, 196, 222, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover {
+            background: rgba(176, 196, 222, 0.1);
+            box-shadow: 0 0 15px rgba(176, 196, 222, 0.3);
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Result Panel */
+        .result-panel {
+            display: none;
+            text-align: center;
+            animation: fadeIn 1s forwards;
+        }
+
+        .final-quote {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .asset-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 400px) {
+            .main-stage { width: 95%; padding: 1rem; }
+            .visual-frame { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Rain Effect Generator -->
+    <div class="rain-container" id="rainSystem"></div>
+
+    <div class="main-stage">
+        <div class="scene-header">
+            운심부지처가 아닌 곳 &nbsp;|&nbsp; 이름 없는 동굴
+        </div>
+
+        <!-- Atmospheric Visual -->
+        <div class="visual-frame">
+            <img src="https://images.unsplash.com/photo-1504333638930-c8787321eee0?q=80&w=2070&auto=format&fit=crop" alt="Cave Atmosphere">
+            <div class="overlay-vignette"></div>
+        </div>
+
+        <!-- Narrative Content -->
+        <div class="narrative-text">
+            빗줄기가 잦아들고, 동굴 안에는 무거운 침묵만이 흐릅니다.
+            진창에 뒹군 고결한 복색과 피에 젖은 금성설랑의 문양.
+            두 사람은 산 자의 명부에서 지워진 밤을 견디고 있습니다.
+        </div>
+
+        <!-- Dialogue Visualization -->
+        <div class="dialogue-block">
+            <div class="dialogue-name">
+                <img src="/characters/금광요/sad.png" class="asset-icon" alt="금광요" onerror="this.style.display='none'">
+                금광요
+            </div>
+            <div class="dialogue-content">
+                "그러니 형님, 저를 원망하십시오.<br>
+                살린 것을 후회하고, 매 순간 저주하십시오.<br>
+                그것이 제가 형님께 드린 벌입니다."
+            </div>
+        </div>
+
+        <div class="narrative-text" style="color: var(--text-sub); font-size: 0.85rem; text-align: center;">
+            차가운 피부 아래서 뜨거운 열기가 맥박치고 있었다.<br>
+            이것은 사랑인가, 형벌인가.
+        </div>
+
+        <!-- Status & Action -->
+        <div class="interaction-zone">
+            <div class="status-bar">
+                <span>남희신 상태: 혼란, 연민</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span>금광요 생명력:</span>
+                    <div class="pulse-monitor">
+                        <div class="pulse-line"></div>
+                        <div class="pulse-line"></div>
+                        <div class="pulse-line"></div>
+                        <div class="pulse-line"></div>
+                        <div class="pulse-line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="action-btn" id="acceptBtn">
+                [ 족쇄를 받아들이다 ]
+            </button> <!-- User clicks this to accept the narrative fate -->
+        }
+
+        <!-- Hidden Result -->
+        <div class="result-panel" id="resultPanel">
+            <div style="margin-bottom: 20px;">
+                <img src="/characters/남희신/close-eyes-sad.png" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--accent-lan); opacity: 0.8;" alt="남희신">
+            </div>
+            <div class="final-quote">
+                "그래, 기꺼이 받으마.<br>
+                너는 죽었고, 나 또한 죽었으니.<br>
+                이 지옥이 우리의 운심(雲深)이다."
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 1rem;">
+                - 인연이 족쇄로 변하는 순간 -
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Rain Generator
+            const rainContainer = document.getElementById('rainSystem');
+            const dropCount = 50;
+
+            for (let i = 0; i < dropCount; i++) {
+                const drop = document.createElement('div');
+                drop.classList.add('rain-drop');
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.animationDuration = Math.random() * 1 + 0.5 + 's';
+                drop.style.opacity = Math.random();
+                rainContainer.appendChild(drop);
+            }
+
+            // Interaction Logic
+            const btn = document.getElementById('acceptBtn');
+            const result = document.getElementById('resultPanel');
+            const statusBar = document.querySelector('.status-bar');
+
+            btn.addEventListener('click', () => {
+                // Button fade out
+                btn.style.transition = 'opacity 0.5s ease';
+                btn.style.opacity = '0';
+
+                setTimeout(() => {
+                    btn.style.display = 'none';
+                    statusBar.style.borderTop = 'none';
+                    statusBar.style.opacity = '0.3';
+
+                    // Show Result
+                    result.style.display = 'block';
+
+                    // Change Background Effect slightly (darker)
+                    document.querySelector('.visual-frame img').style.transform = 'scale(1.2)';
+                    document.querySelector('.visual-frame img').style.filter = 'grayscale(100%) brightness(0.5)';
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
